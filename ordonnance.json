@@ -1,0 +1,11 @@
+{
+    "nss": "123456789012345",
+    "medicaments": ["Aspirine", "Coumadine"],
+    "patient": {
+        "nom": "Benjelloun",
+        "prenom": "Karim",
+        "dateNaissance": "1982-03-15",
+        "sexe": "M",
+        "telephone": "0612345678"
+    }
+}

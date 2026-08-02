@@ -1,0 +1,46 @@
+# Environments 
+venv/ 
+env/ 
+.venv/ 
+ENV/ 
+env.bak/ 
+venv.bak/ 
+ 
+# Python cache 
+__pycache__/ 
+*.pyc 
+*.pyo 
+*.pyd 
+*.so 
+*.dll 
+ 
+# Base de donnees 
+*.db 
+*.sqlite3 
+*.sqlite 
+data/*.db 
+data/processed/ 
+*.pkl 
+ 
+# Tests 
+.pytest_cache/ 
+htmlcov/ 
+.coverage 
+*.cover 
+ 
+# IDE 
+.vscode/ 
+.idea/ 
+*.swp 
+*.swo 
+ 
+# Logs 
+*.log 
+ 
+# Variables 
+.env 
+*.env 
+ 
+# OS 
+Thumbs.db 
+.DS_Store 

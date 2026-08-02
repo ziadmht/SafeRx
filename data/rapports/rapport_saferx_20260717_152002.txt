@@ -1,0 +1,19 @@
+============================================================
+          SAFERX - RAPPORT D'ANALYSE
+============================================================
+
+📅 Date : 2026-07-17 14:19:29
+👤 Patient : El Amrani Fatima
+📊 Statut : Sécurisée
+⚠️ Alertes : 0
+
+💊 Médicaments analysés :
+   - Coumadine
+   - Amoxicilline Sandoz
+
+✅ Aucune alerte détectée - Ordonnance sécurisée
+
+============================================================
+Rapport généré le 17/07/2026 à 15:20
+SafeRx - Assistant Intelligent de Délivrance
+============================================================

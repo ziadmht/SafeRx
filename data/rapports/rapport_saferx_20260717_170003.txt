@@ -1,0 +1,28 @@
+============================================================
+          SAFERX - RAPPORT D'ANALYSE
+============================================================
+
+📅 Date : 2026-07-17 15:59:11
+👤 Patient : Benjelloun Karim
+📊 Statut : Alerte
+⚠️ Alertes : 1
+
+💊 Médicaments analysés :
+   - Aspirine
+   - Coumadine
+
+📋 ALERTES DÉTECTÉES :
+
+--- Alerte 1 ---
+   Type : interaction
+   Niveau : Élevé
+   Message : ⚠️ Interaction entre Acide acétylsalicylique et Warfarine
+   Description : L'aspirine augmente le risque hémorragique de la warfarine
+   Recommandation : Surveillance étroite, éviter si possible
+   Médicaments : Acide acétylsalicylique, Warfarine
+
+
+============================================================
+Rapport généré le 17/07/2026 à 17:00
+SafeRx - Assistant Intelligent de Délivrance
+============================================================
