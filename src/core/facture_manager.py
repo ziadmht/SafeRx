@@ -26,7 +26,7 @@ class FactureManager:
                 numero VARCHAR(50) NOT NULL UNIQUE,
                 date_emission DATETIME DEFAULT CURRENT_TIMESTAMP,
                 montant_total DECIMAL(10,2) NOT NULL,
-                statut VARCHAR(20) CHECK (statut IN ('En attente', 'Payée', 'Annulée')),
+                statut VARCHAR(20) CHECK (statut IN ('EN_ATTENTE', 'PAYEE', 'ANNULEE')),
                 reference_paiement VARCHAR(50),
                 date_paiement DATETIME,
                 FOREIGN KEY (idAnalyse) REFERENCES Analyse(idAnalyse),
@@ -94,7 +94,7 @@ class FactureManager:
             cursor.execute("""
                 INSERT INTO Facture (idAnalyse, idPatient, numero, montant_total, statut)
                 VALUES (?, ?, ?, ?, ?)
-            """, (analyse_id, patient_id, numero, round(total, 2), 'En attente'))
+            """, (analyse_id, patient_id, numero, round(total, 2), 'EN_ATTENTE'))
             
             facture_id = cursor.lastrowid
             
@@ -116,7 +116,7 @@ class FactureManager:
             # Mettre à jour l'analyse
             cursor.execute("""
                 UPDATE Analyse 
-                SET statut_validation = 'Validée', 
+                SET statut_validation = 'VALIDEE', 
                     date_validation = CURRENT_TIMESTAMP, 
                     idFacture = ?
                 WHERE idAnalyse = ?
@@ -189,10 +189,10 @@ class FactureManager:
             
             cursor.execute("""
                 UPDATE Facture 
-                SET statut = 'Payée', 
+                SET statut = 'PAYEE', 
                     reference_paiement = ?, 
                     date_paiement = CURRENT_TIMESTAMP
-                WHERE idFacture = ? AND statut = 'En attente'
+                WHERE idFacture = ? AND statut = 'EN_ATTENTE'
             """, (reference_paiement, facture_id))
             
             if cursor.rowcount == 0:
@@ -217,10 +217,10 @@ class FactureManager:
         cursor.execute("SELECT statut, COUNT(*) FROM Facture GROUP BY statut")
         par_statut = dict(cursor.fetchall())
         
-        cursor.execute("SELECT SUM(montant_total) FROM Facture WHERE statut = 'Payée'")
+        cursor.execute("SELECT SUM(montant_total) FROM Facture WHERE statut = 'PAYEE'")
         total_paye = cursor.fetchone()[0] or 0.0
         
-        cursor.execute("SELECT SUM(montant_total) FROM Facture WHERE statut = 'En attente'")
+        cursor.execute("SELECT SUM(montant_total) FROM Facture WHERE statut = 'EN_ATTENTE'")
         total_attente = cursor.fetchone()[0] or 0.0
         
         conn.close()

@@ -1,11 +1,9 @@
-# src/core/history_manager.py
 import sqlite3
 from pathlib import Path
 from typing import Any, Dict, List
 
 from src.core.interaction_detector import AnalyseResult
 from src.database.init_db import init_database
-from src.core.constants import Statut  # ✅ AJOUT DE L'IMPORT
 
 
 class HistoryManager:
@@ -37,24 +35,27 @@ class HistoryManager:
             init_database(db_path)
             return
 
-        cursor.execute(
+        table_exists = cursor.execute(
             """
             SELECT name FROM sqlite_master
             WHERE type='table' AND name='Analyse'
             """
-        )
+        ).fetchone()
 
-        if not cursor.fetchone():
+        if not table_exists:
             cursor.executescript(
                 """
                 CREATE TABLE IF NOT EXISTS Analyse (
                     idAnalyse INTEGER PRIMARY KEY AUTOINCREMENT,
                     idPatient INTEGER NOT NULL,
                     dateAnalyse DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    statut VARCHAR(20) CHECK (statut IN ('Sécurisée', 'Alerte', 'Annulée')),
+                    statut VARCHAR(20) CHECK (statut IN ('SECURISEE', 'ALERTE', 'ANNULEE')),
                     nb_alertes INTEGER DEFAULT 0,
                     nb_interactions INTEGER DEFAULT 0,
                     nb_allergies INTEGER DEFAULT 0,
+                    statut_validation VARCHAR(20) DEFAULT 'EN_ATTENTE',
+                    date_validation DATETIME,
+                    idFacture INTEGER,
                     FOREIGN KEY (idPatient) REFERENCES Patient(idPatient)
                 );
 
@@ -62,7 +63,7 @@ class HistoryManager:
                     idAlerte INTEGER PRIMARY KEY AUTOINCREMENT,
                     idAnalyse INTEGER NOT NULL,
                     type_alerte VARCHAR(20) CHECK (type_alerte IN ('interaction', 'allergie', 'information')),
-                    niveau VARCHAR(20) CHECK (niveau IN ('Élevé', 'Moyen', 'Faible')),
+                    niveau VARCHAR(20) CHECK (niveau IN ('ELEVE', 'MOYEN', 'FAIBLE')),
                     message TEXT,
                     description TEXT,
                     recommandation TEXT,
@@ -80,6 +81,20 @@ class HistoryManager:
                 """
             )
             conn.commit()
+        else:
+            schema = cursor.execute("PRAGMA table_info(Analyse)").fetchall()
+            has_validation = any(col[1] == 'statut_validation' for col in schema)
+            if not has_validation:
+                cursor.execute("ALTER TABLE Analyse ADD COLUMN statut_validation VARCHAR(20) DEFAULT 'EN_ATTENTE'")
+                cursor.execute("ALTER TABLE Analyse ADD COLUMN date_validation DATETIME")
+                cursor.execute("ALTER TABLE Analyse ADD COLUMN idFacture INTEGER")
+                conn.commit()
+
+            cursor.execute("UPDATE Analyse SET statut_validation = 'EN_ATTENTE' WHERE statut_validation IS NULL OR statut_validation = 'En attente'")
+            cursor.execute("UPDATE Analyse SET statut = 'SECURISEE' WHERE statut = 'Sécurisée'")
+            cursor.execute("UPDATE Analyse SET statut = 'ALERTE' WHERE statut = 'Alerte'")
+            cursor.execute("UPDATE Analyse SET statut = 'ANNULEE' WHERE statut = 'Annulée'")
+            conn.commit()
 
         conn.close()
 
@@ -91,18 +106,19 @@ class HistoryManager:
         nb_interactions = sum(1 for a in resultat.alertes if a.type_alerte == "interaction")
         nb_allergies = sum(1 for a in resultat.alertes if a.type_alerte == "allergie")
 
-        # ✅ UTILISATION DES CONSTANTES
         if resultat.est_securise:
-            statut = Statut.SECURISEE
+            statut = "SECURISEE"
         elif resultat.alertes:
-            statut = Statut.ALERTE
+            statut = "ALERTE"
         else:
-            statut = Statut.ANNULEE
+            statut = "ANNULEE"
 
         cursor.execute(
             """
-            INSERT INTO Analyse (idPatient, statut, nb_alertes, nb_interactions, nb_allergies)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO Analyse (
+                idPatient, statut, nb_alertes, nb_interactions, nb_allergies, statut_validation
+            )
+            VALUES (?, ?, ?, ?, ?, 'EN_ATTENTE')
             """,
             (patient_id, statut, len(resultat.alertes), nb_interactions, nb_allergies),
         )

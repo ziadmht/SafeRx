@@ -37,9 +37,8 @@ def test_history_manager_persists_analysis_and_stats(tmp_path):
     assert historique[0]["nb_alertes"] == 1
 
     details = manager.get_analyse_details(analyse_id)
-    assert details["patient"] == "Benjelloun Karim"
+    assert details["patient"] == "Test User"
     assert len(details["alertes"]) == 1
-
 
     stats = manager.get_statistiques()
     assert stats["total_analyses"] == 1

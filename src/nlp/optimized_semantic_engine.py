@@ -1,4 +1,3 @@
-# src/nlp/optimized_semantic_engine.py - VERSION ORIGINALE + 1 LIGNE
 import sqlite3
 import time
 from pathlib import Path
@@ -28,16 +27,12 @@ class OptimizedSemanticEngine:
             for target_id, niveau, desc, reco in interactions:
                 self.interactions.append((molecule_id, target_id, niveau, desc, reco))
 
-        # ✅ AJOUT UNIQUE : Compatibilité avec InteractionDetector
-        self.medicament_molecules = self.med_mol_relations
-
         elapsed = time.time() - start
-        print(f"[SemanticEngine] Moteur sémantique optimisé initialisé en {elapsed:.2f}s")
-        print(f"   [Stats] {len(self.molecules)} molécules")
-        print(f"   [Stats] {len(self.medicaments)} médicaments")
-        print(f"   [Stats] {len(self.interactions)} interactions")
-        print(f"   [Cache] {self.embedding_engine.get_cache_stats()['persistent_cache_size']} entrées")
-
+        print(f"✅ Moteur sémantique optimisé initialisé en {elapsed:.2f}s")
+        print(f"   📊 {len(self.molecules)} molécules")
+        print(f"   💊 {len(self.medicaments)} médicaments")
+        print(f"   🔗 {len(self.interactions)} interactions")
+        print(f"   💾 Cache: {self.embedding_engine.get_cache_stats()['persistent_cache_size']} entrées")
 
     def _load_data_with_index(self):
         conn = sqlite3.connect(self.db_path)

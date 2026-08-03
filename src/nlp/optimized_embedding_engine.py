@@ -32,17 +32,16 @@ class OptimizedEmbeddingEngine:
         self.dimensions = None
         if SentenceTransformer is not None:
             try:
-                print(f"[NLP] Chargement du modèle '{model_name}'...")
+                print(f"🔄 Chargement du modèle '{model_name}'...")
                 start = time.time()
                 self.model = SentenceTransformer(model_name)
                 self.dimensions = self.model.get_sentence_embedding_dimension()
-                print(f"[NLP] Modèle chargé en {time.time() - start:.2f}s")
-                print(f"[NLP] Dimensions: {self.dimensions}")
+                print(f"✅ Modèle chargé en {time.time() - start:.2f}s")
+                print(f"📐 Dimensions: {self.dimensions}")
             except Exception as exc:
-                print(f"[NLP] Impossible de charger le modèle NLP: {exc}")
+                print(f"⚠️ Impossible de charger le modèle NLP: {exc}")
         else:
-            print("[NLP] sentence_transformers non disponible; le moteur utilisera un fallback simple.")
-
+            print("⚠️ sentence_transformers non disponible; le moteur utilisera un fallback simple.")
 
         self._preload_common_molecules()
 
@@ -52,11 +51,10 @@ class OptimizedEmbeddingEngine:
             try:
                 with open(cache_file, 'rb') as f:
                     self.persistent_cache = pickle.load(f)
-                print(f"[Cache] Cache persistant chargé ({len(self.persistent_cache)} entrées)")
+                print(f"📦 Cache persistant chargé ({len(self.persistent_cache)} entrées)")
             except Exception:
                 self.persistent_cache = {}
-                print("[Cache] Cache corrompu, réinitialisation")
-
+                print("⚠️ Cache corrompu, réinitialisation")
         else:
             self.persistent_cache = {}
 
@@ -163,22 +161,21 @@ class OptimizedEmbeddingEngine:
             'Amoxicilline', 'Pénicilline', 'Diclofénac', 'Oméprazole',
             'Acide acétylsalicylique', 'Doliprane', 'Advil', 'Coumadine'
         ]
-        print('[NLP] Préchargement des molécules fréquentes...')
+        print('🔄 Préchargement des molécules fréquentes...')
         start = time.time()
         for mol in common_molecules:
             self.encode(mol, force_cache=True)
-        print(f'[NLP] Préchargé {len(common_molecules)} molécules en {time.time() - start:.2f}s')
+        print(f'✅ Préchargé {len(common_molecules)} molécules en {time.time() - start:.2f}s')
 
     def precompute_for_database(self, molecule_names: List[str]):
         """Prépare les embeddings pour une liste de molécules."""
-        print(f"[NLP] Précalcul des embeddings pour {len(molecule_names)} molécules...")
+        print(f"🔄 Précalcul des embeddings pour {len(molecule_names)} molécules...")
         start = time.time()
         self.encode_batch(molecule_names)
         elapsed = time.time() - start
-        print(f"[NLP] Précalcul terminé en {elapsed:.2f}s")
+        print(f"✅ Précalcul terminé en {elapsed:.2f}s")
         print(f"   {len(molecule_names)} molécules encodées")
         print(f"   Taille du cache persistant: {len(self.persistent_cache)}")
-
 
     def get_performance_metrics(self) -> Dict[str, Any]:
         """Retourne des métriques détaillées de performance."""
@@ -215,5 +212,4 @@ class OptimizedEmbeddingEngine:
         self.cache_hits = 0
         self.cache_misses = 0
         self._save_persistent_cache()
-        print('[Cache] Cache vidé')
-
+        print('🗑️ Cache vidé')

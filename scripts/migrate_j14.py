@@ -26,7 +26,7 @@ def main():
     # 1. Colonnes de validation sur Analyse
     # ============================================================
     if not column_exists(cursor, "Analyse", "statut_validation"):
-        cursor.execute("ALTER TABLE Analyse ADD COLUMN statut_validation VARCHAR(20) DEFAULT 'En attente'")
+        cursor.execute("ALTER TABLE Analyse ADD COLUMN statut_validation VARCHAR(20) DEFAULT 'EN_ATTENTE'")
         print("✅ Colonne statut_validation ajoutée")
     else:
         print("ℹ️ Colonne statut_validation existe déjà")
@@ -47,12 +47,12 @@ def main():
     # 2. Rétro-compatibilité
     # ============================================================
     cursor.execute("""
-        UPDATE Analyse SET statut_validation = 'Validée'
-        WHERE statut_validation IS NULL AND statut IN ('Sécurisée', 'Alerte')
+        UPDATE Analyse SET statut_validation = 'VALIDEE'
+        WHERE statut_validation IS NULL AND statut IN ('SECURISEE', 'ALERTE')
     """)
     cursor.execute("""
-        UPDATE Analyse SET statut_validation = 'Annulée'
-        WHERE statut_validation IS NULL AND statut = 'Annulée'
+        UPDATE Analyse SET statut_validation = 'ANNULEE'
+        WHERE statut_validation IS NULL AND statut = 'ANNULEE'
     """)
     print("✅ Analyses existantes mises à jour")
     
@@ -67,7 +67,7 @@ def main():
             numero VARCHAR(50) NOT NULL UNIQUE,
             date_emission DATETIME DEFAULT CURRENT_TIMESTAMP,
             montant_total DECIMAL(10,2) NOT NULL,
-            statut VARCHAR(20) CHECK (statut IN ('En attente', 'Payée', 'Annulée')),
+            statut VARCHAR(20) CHECK (statut IN ('EN_ATTENTE', 'PAYEE', 'ANNULEE')),
             reference_paiement VARCHAR(50),
             date_paiement DATETIME,
             FOREIGN KEY (idAnalyse) REFERENCES Analyse(idAnalyse),

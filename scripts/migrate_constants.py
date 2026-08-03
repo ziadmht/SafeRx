@@ -29,7 +29,7 @@ def migrer_constants():
             nb_alertes INTEGER DEFAULT 0,
             nb_interactions INTEGER DEFAULT 0,
             nb_allergies INTEGER DEFAULT 0,
-            statut_validation VARCHAR(20) DEFAULT 'En attente',
+            statut_validation VARCHAR(20) DEFAULT 'EN_ATTENTE',
             date_validation DATETIME,
             idFacture INTEGER,
             FOREIGN KEY (idPatient) REFERENCES Patient(idPatient)

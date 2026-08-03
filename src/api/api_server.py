@@ -99,16 +99,11 @@ async def analyser_ordonnance(request: OrdonnanceRequest):
 
     resultat = detector.analyser_ordonnance(patient['id'], med_ids)
     analyse_id = history.enregistrer_analyse(patient['id'], med_ids, resultat)
-    
-    db.execute_write(
-        "UPDATE Analyse SET statut_validation = 'En attente' WHERE idAnalyse = ?",
-        (analyse_id,)
-    )
 
     return {
         "analyse_id": analyse_id,
         "statut": "securisee" if resultat.est_securise else "alerte",
-        "statut_validation": "En attente",
+        "statut_validation": "EN_ATTENTE",
         "patient": patient,
         "medicaments": resultat.medicaments,
         "nb_alertes": len(resultat.alertes),
@@ -137,7 +132,7 @@ async def valider_ordonnance(request: ValidationRequest):
     
     # ✅ Transition atomique : seul le premier gagnant continue
     rows_updated = db.execute_write_rowcount(
-        "UPDATE Analyse SET statut_validation = 'Validée' WHERE idAnalyse = ? AND statut_validation = 'En attente'",
+        "UPDATE Analyse SET statut_validation = 'VALIDEE' WHERE idAnalyse = ? AND statut_validation = 'EN_ATTENTE'",
         (request.analyse_id,)
     )
     
@@ -151,7 +146,7 @@ async def valider_ordonnance(request: ValidationRequest):
         # Mise à jour pour annulation
         db.execute_write("""
             UPDATE Analyse 
-            SET statut_validation = 'Annulée', 
+            SET statut_validation = 'ANNULEE', 
                 date_validation = CURRENT_TIMESTAMP
             WHERE idAnalyse = ?
         """, (request.analyse_id,))
@@ -176,7 +171,7 @@ async def valider_ordonnance(request: ValidationRequest):
     if not ok:
         # Rollback : remettre en attente
         db.execute_write(
-            "UPDATE Analyse SET statut_validation = 'En attente' WHERE idAnalyse = ?",
+            "UPDATE Analyse SET statut_validation = 'EN_ATTENTE' WHERE idAnalyse = ?",
             (request.analyse_id,)
         )
         raise HTTPException(status_code=500, detail=f"Erreur facturation : {msg}")

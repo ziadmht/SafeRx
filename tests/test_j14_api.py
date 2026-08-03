@@ -1,7 +1,11 @@
 # tests/test_j14_api.py
 import pytest
 import asyncio
+import sqlite3
+from pathlib import Path
 from src.api.api_server import health_check, analyser_ordonnance, valider_ordonnance, OrdonnanceRequest, PatientData, ValidationRequest, lifespan, app
+
+DB_PATH = Path(__file__).resolve().parent.parent / "data" / "safeRx.db"
 
 def test_api_health():
     res = asyncio.run(health_check())
@@ -20,8 +24,16 @@ def test_api_analyse_ordonnance():
             res = await analyser_ordonnance(req)
             assert res["statut"] in ["securisee", "alerte"]
             assert res["patient"]["nss"] == "123456789012345"
-            assert res["statut_validation"] == "En attente"
-            
+            assert res["statut_validation"] == "EN_ATTENTE"
+
+            with sqlite3.connect(DB_PATH) as conn:
+                row = conn.execute(
+                    "SELECT statut_validation FROM Analyse WHERE idAnalyse = ?",
+                    (res["analyse_id"],)
+                ).fetchone()
+                assert row is not None
+                assert row[0] == "EN_ATTENTE"
+
             # 2. Validation et facturation
             val_req = ValidationRequest(
                 analyse_id=res["analyse_id"],
@@ -32,5 +44,13 @@ def test_api_analyse_ordonnance():
             assert val_res["action"] == "validée"
             assert "numero" in val_res["facture"]
             assert "reference" in val_res["paiement"]
-    
+
+            with sqlite3.connect(DB_PATH) as conn:
+                row = conn.execute(
+                    "SELECT statut_validation FROM Analyse WHERE idAnalyse = ?",
+                    (res["analyse_id"],)
+                ).fetchone()
+                assert row is not None
+                assert row[0] == "VALIDEE"
+
     asyncio.run(run_test())
